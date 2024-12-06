@@ -1,0 +1,60 @@
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mycode="clr-namespace:Uygulamam"
+             x:Class="Uygulamam.MainPage">
+
+    <ScrollView>
+        <VerticalStackLayout
+            Spacing="{OnPlatform iOS='30', Default='15'}"
+            Padding="{OnPlatform iOS='30,60,30,30', Default='20'}"
+            BackgroundColor="#1f1f1f"
+            HorizontalOptions="Fill">
+            <!--Bu kısım her platform için ayrı ayrı özelleştirmeye yarar -->
+            <!--<OnPlatform x:TypeArguments="Thickness">
+                <On Platform="iOS" Value="30,60,30,30" />
+                <On Platform="Android" Value="30" />
+                <On Platform="WinUI" Value="30" />
+            </OnPlatform>-->
+            <!--yada bu şekilde basitçe yazılabilir-->
+            
+            <Image
+                x:Name="spaceshipImage"
+                Source="spaceship.png"
+                HeightRequest="185"
+                Aspect="AspectFit"
+                SemanticProperties.Description="spacewarship" />
+
+            <Label x:Name="loginLabel" Text="Log In" 
+                   FontSize="{mycode:GlobalFontSize}" 
+                   TextColor="AntiqueWhite" 
+                   HorizontalOptions="Center" 
+                   FontFamily="Times New Roman" 
+                   FontAttributes="Bold,Italic" 
+                   Margin="0,20,0,20" 
+             />
+
+            <Frame 
+                Padding="5,20,5,20"
+                CornerRadius="9"
+                BorderColor="White"
+                BackgroundColor="#333333"
+                HorizontalOptions="Fill"
+                HasShadow="True">
+
+                <VerticalStackLayout Spacing="15" HorizontalOptions="Fill">
+                    <Entry x:Name="Username" Placeholder="Username" />
+                    <Entry x:Name="Password" IsPassword="True" Placeholder="Password" />
+                    <Button
+                        x:Name="CounterBtn"
+                        BackgroundColor="#0094FF"
+                        Text="Log In"
+                        SemanticProperties.Hint="Counts the number of times you click"
+                        Clicked="OnCounterClicked"
+                        HorizontalOptions="Fill" />
+                </VerticalStackLayout>
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
