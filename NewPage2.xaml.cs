@@ -9,7 +9,7 @@ namespace Uygulamam
         double _xOffset, _yOffset;
         double _startX, _startY;
         private Random _random = new Random();
-        private const int CreateInterval = 200, MovingTime = 5000,callingtime=3000; // Milisaniye cinsinden oluþturma aralýðý
+        private const int CreateInterval = 200, MovingTime = 3000,callingtime=3000; // Milisaniye cinsinden oluÅŸturma aralÄ±ÄŸÄ±
         private double _currentX, _currentY;
         private double MyShipX= 0.5, MyShipY= 0.5;
         private string MyShipPath= "spaceship.png", BulletPath= "bullet.png";
@@ -45,7 +45,7 @@ namespace Uygulamam
             {
                 CreateNewBullet(_currentX + 0.53, _currentY + 0.5);
                 CreateNewBullet(_currentX + 0.47, _currentY + 0.5);
-                await Task.Delay(CreateInterval); // Yeni Image oluþturma aralýðý
+                await Task.Delay(CreateInterval); // Yeni Image oluÅŸturma aralÄ±ÄŸÄ±
                                                   // Example of an async task (e.g., logging)
             }
         }
@@ -54,8 +54,9 @@ namespace Uygulamam
             while (true)
             {
                 GenerateAndPlaceEnemyShip();
-                await Task.Delay(callingtime); // Yeni Image oluþturma aralýðý
-                                                  // Example of an async task (e.g., logging)
+                await Task.Delay(callingtime); // Yeni Image oluÅŸturma aralÄ±ÄŸÄ±
+                                               // Example of an async task (e.g., logging)
+
             }
         }
 
@@ -91,7 +92,7 @@ namespace Uygulamam
             while ((DateTime.Now - startTime).TotalMilliseconds < MovingTime)
             {
                 await Task.Delay(100);
-                y -= 0.02;
+                y -= 0.015;
 
                 // Log the current y position
                 //Console.WriteLine($"Current y position: {y}");
@@ -122,17 +123,18 @@ namespace Uygulamam
         private async void KonumTakipi(Image image)
         {
             //Debug.WriteLine($"{image.X}{image.Y}");
-            foreach (var enemyShipBorder in enemyShipBorders.ToList())  // ToList() used to avoid modification issues during iteration
+            foreach (var enemyShipBorder in enemyShipBorders.ToList())  // ToList() kullanarak gÃ¼venli iterasyon saÄŸlanÄ±r
             {
-                if (IsBulletInsideEnemyBorder(image))
+                if (IsBulletInsideEnemyBorder(image, enemyShipBorder))
                 {
                     if (absoluteLayout != null)
                     {
-                        absoluteLayout.Children.Remove(enemyShipBorder);
-                        enemyShipBorders.Remove(enemyShipBorder);  // Remove from the list
+                        absoluteLayout.Children.Remove(enemyShipBorder);  // Orijinal listeden Ã§Ä±kar
+                        enemyShipBorders.Remove(enemyShipBorder);  // Orijinal listeden Ã§Ä±kar
                     }
                 }
             }
+
         }
         private async void EnemyShip1(double XPosition, double YPosition)
         {
@@ -193,69 +195,18 @@ namespace Uygulamam
             // Add Border to the Layout (assuming you have an AbsoluteLayout named 'absoluteLayout')
             absoluteLayout.Children.Add(MyShipBorder);
         }
-        /*
-        private async void AnimateImage(Image image)
+       
+        private bool IsBulletInsideEnemyBorder(Image image,Border enemshipborder)
         {
-            // Make the image visible
-            image.Opacity = 1;
-
-            // Tasks to wait for animations to complete
-            var translateTask = image.TranslateTo(0, -300, MovingTime);
-            var fadeTask = image.FadeTo(0, MovingTime);
-
-            // Timer task
-            var timerTask = Task.Run(async () =>
-            {
-                while (!translateTask.IsCompleted)
-                {
-                    // Get the current position of the bullet
-                    var bulletCurrentPosition = AbsoluteLayout.GetLayoutBounds(image);
-
-                    if (IsBulletInsideEnemyBorder(bulletCurrentPosition))
-                    {
-                        // Bullet hit the enemy ship, perform necessary actions
-                        Debug.WriteLine("Bullet hit the enemy ship!");
-
-                        // Update UI on the main thread
-                        MainThread.BeginInvokeOnMainThread(() =>
-                        {
-                            if (absoluteLayout != null && EnemyShipBorder != null)
-                            {
-                                absoluteLayout.Children.Remove(EnemyShipBorder);
-                            }
-                        });
-                        break;
-                    }
-
-                    // Wait for 100 milliseconds
-                    await Task.Delay(100);
-                }
-            });
-
-            // Wait for all animations to complete
-            await Task.WhenAll(translateTask, fadeTask, timerTask);
-
-            // Update UI on the main thread
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
-                if (absoluteLayout != null && absoluteLayout.Children.Contains(image))
-                {
-                    absoluteLayout.Children.Remove(image);
-                }
-            });
-        }
-        */
-        private bool IsBulletInsideEnemyBorder(Image image)
-        {
-            if (EnemyShipBorder == null) return false;
+            if (enemshipborder == null) return false;
 
             // Get the position and size of the EnemyShipBorder
-            var enemyBounds = AbsoluteLayout.GetLayoutBounds(EnemyShipBorder);
+            var enemyBounds = AbsoluteLayout.GetLayoutBounds(enemshipborder);
             var enemyRect = new Rect(
-                enemyBounds.X * absoluteLayout.Width - (EnemyShipBorder.Width / 2),
-                enemyBounds.Y * absoluteLayout.Height - (EnemyShipBorder.Height / 2),
-                EnemyShipBorder.Width,
-                EnemyShipBorder.Height
+                enemyBounds.X * absoluteLayout.Width - (enemshipborder.Width / 2),
+                enemyBounds.Y * absoluteLayout.Height - (enemshipborder.Height / 2),
+                enemshipborder.Width,
+                enemshipborder.Height
             );
             /*
             // Create a rectangle for the current position of the bullet
@@ -280,47 +231,9 @@ namespace Uygulamam
 
 
 
-        /*
-        private bool IsBulletInsideEnemyBorder(Rect bulletBounds, Image bullet)
-        {
-            if (EnemyShipBorder == null) return false;
-
-            // Get the position and size of the EnemyShipBorder
-            var enemyBounds = AbsoluteLayout.GetLayoutBounds(EnemyShipBorder);
-            var enemyRect = new Rect(
-                enemyBounds.X * absoluteLayout.Width - (EnemyShipBorder.Width / 2),
-                enemyBounds.Y * absoluteLayout.Height - (EnemyShipBorder.Height / 2),
-                EnemyShipBorder.Width,
-                EnemyShipBorder.Height
-            );
-
-            // Update the bullet rectangle to current position
-            var bulletRect = new Rect(
-                bulletBounds.X * absoluteLayout.Width - (bullet.Width / 2),
-                bulletBounds.Y * absoluteLayout.Height - (bullet.Height / 2),
-                bullet.Width,
-                bullet.Height
-            );
-
-            // Check if the bullet's bounding box is entirely within the enemy's bounding box
-            bool isWithinXBounds = bulletRect.Left >= enemyRect.Left && bulletRect.Right <= enemyRect.Right;
-            bool isWithinYBounds = bulletRect.Top >= enemyRect.Top && bulletRect.Bottom <= enemyRect.Bottom;
-
-            // Additional debugging information
-            Debug.WriteLine($"EnemyShipBorder Rect: {enemyRect}");
-            Debug.WriteLine($"Bullet Rect: {bulletRect}");
-            Debug.WriteLine($"isWithinXBounds: {isWithinXBounds}");
-            Debug.WriteLine($"isWithinYBounds: {isWithinYBounds}");
-
-            return isWithinXBounds && isWithinYBounds;
-        }
-        
-
-        */
 
 
-
-        // Alt satýrdaki kodlar dokunarak bizim gemimizi hareket ettirmeye yarar
+        // Alt satÄ±rdaki kodlar dokunarak bizim gemimizi hareket ettirmeye yarar
         private async void OnTapped(object sender, EventArgs e)
         {
             if (sender is Image image && image.Parent is Border border)
@@ -328,7 +241,7 @@ namespace Uygulamam
                 double newX = _startX;
                 double newY = _startY;
 
-                // Yeni konumu sýnýrlarla kontrol ederek uygula
+                // Yeni konumu sÄ±nÄ±rlarla kontrol ederek uygula
                 double maxX = Width - border.Width;
                 double maxY = Height - border.Height;
 
@@ -338,7 +251,7 @@ namespace Uygulamam
                 border.TranslationX = newX;
                 border.TranslationY = newY;
 
-                // Asenkron bir iþleme örnek ekle (örneðin, bir log kaydý)
+                // Asenkron bir iÅŸleme Ã¶rnek ekle (Ã¶rneÄŸin, bir log kaydÄ±)
                 await Task.Run(() => Console.WriteLine($"Tap moved to X: {newX}, Y: {newY}"));
             }
         }
@@ -374,7 +287,7 @@ namespace Uygulamam
                         border.TranslationY = newY;
                         double layoutWidth = absoluteLayout.Width; 
                         double layoutHeight= absoluteLayout.Height;
-                        // Normalize edilmiþ deðerler .
+                        // Normalize edilmiÅŸ deÄŸerler .
                         double normalizedX = newX / layoutWidth; 
                         double normalizedY = newY / layoutHeight;
                         _currentX=normalizedX;
