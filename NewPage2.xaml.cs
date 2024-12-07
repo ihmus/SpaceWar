@@ -9,7 +9,7 @@ namespace Uygulamam
         double _xOffset, _yOffset;
         double _startX, _startY;
         private Random _random = new Random();
-        private const int CreateInterval = 200, MovingTime = 3000,callingtime=3000; // Milisaniye cinsinden oluşturma aralığı
+        private const int CreateInterval = 200, MovingTime = 1000,callingtime=3000; // Milisaniye cinsinden oluşturma aralığı
         private double _currentX, _currentY;
         private double MyShipX= 0.5, MyShipY= 0.5;
         private string MyShipPath= "spaceship.png", BulletPath= "bullet.png";
@@ -17,7 +17,7 @@ namespace Uygulamam
         private string EnemyShip = "enemyship.png";
         private List<Border> enemyShipBorders = new List<Border>();
         private int score=0;
-        private int speed = 5;
+        private double speed = Math.Sqrt(0.0001);
 
         public NewPage2()
         {
@@ -55,6 +55,9 @@ namespace Uygulamam
         {
             while (true)
             {
+                GenerateAndPlaceEnemyShip();
+                GenerateAndPlaceEnemyShip();
+                GenerateAndPlaceEnemyShip();
                 GenerateAndPlaceEnemyShip();
                 await Task.Delay(callingtime); // Yeni Image oluşturma aralığı
                                                // Example of an async task (e.g., logging)
@@ -172,16 +175,20 @@ namespace Uygulamam
         }
         private async void  MovingEnemies(Border EnemyShipBorder)
         {
-            DateTime startTime = DateTime.Now;
             double y = AbsoluteLayout.GetLayoutBounds(EnemyShipBorder).Y;
             double x = AbsoluteLayout.GetLayoutBounds(EnemyShipBorder).X;
+            double myshipx = _currentX + 0.5;
+            double myshipy = _currentY + 0.5;
+
             while (true)
             {
-                await Task.Delay(100);
-                double myshipx = _currentX + 0.5;
-                double myshipy = _currentY + 0.5;
-                y -= Math.Sqrt(0.0005) * (double)((y - myshipy) / Math.Sqrt((Math.Pow((y - myshipy), 2) + Math.Pow((x - myshipx), 2))));
-                x -=2* Math.Sqrt(0.0005) * (double)((x - myshipx) / Math.Sqrt((Math.Pow((y - myshipy), 2) + Math.Pow((x - myshipx), 2))));
+                y = AbsoluteLayout.GetLayoutBounds(EnemyShipBorder).Y;
+                x = AbsoluteLayout.GetLayoutBounds(EnemyShipBorder).X;
+                myshipx = _currentX + 0.5;
+                myshipy = _currentY + 0.5;
+                await Task.Delay(16);
+                y -= speed * (double)((y - myshipy) / Math.Sqrt((Math.Pow((y - myshipy), 2) + Math.Pow((x - myshipx), 2))));
+                x -=speed * (double)((x - myshipx) / Math.Sqrt((Math.Pow((y - myshipy), 2) + Math.Pow((x - myshipx), 2))));
 
                 // Yeni pozisyonu güncelle
                 //AbsoluteLayout.SetLayoutBounds(EnemyShipBorder, new Rect(AbsoluteLayout.GetLayoutBounds(EnemyShipBorder).X, y, AbsoluteLayout.GetLayoutBounds(EnemyShipBorder).Width, AbsoluteLayout.GetLayoutBounds(EnemyShipBorder).Height));
