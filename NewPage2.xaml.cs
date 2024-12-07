@@ -16,6 +16,8 @@ namespace Uygulamam
         private Border MyShipBorder,EnemyShipBorder;
         private string EnemyShip = "enemyship.png";
         private List<Border> enemyShipBorders = new List<Border>();
+        private int score=0;
+        private int speed = 5;
 
         public NewPage2()
         {
@@ -165,6 +167,40 @@ namespace Uygulamam
             // Add Border to the Layout (assuming you have an AbsoluteLayout named 'absoluteLayout')
             absoluteLayout.Children.Add(EnemyShipBorder);
             enemyShipBorders.Add(EnemyShipBorder);
+            MovingEnemies(EnemyShipBorder);
+
+        }
+        private async void  MovingEnemies(Border EnemyShipBorder)
+        {
+            double y = AbsoluteLayout.GetLayoutBounds(EnemyShipBorder).Y;
+            double x = AbsoluteLayout.GetLayoutBounds(EnemyShipBorder).X;
+            double myshipx = _currentX + 0.5;
+            double myshipy = _currentY + 0.5;
+            DateTime startTime = DateTime.Now;
+
+            while (true)
+            {
+                await Task.Delay(100);
+                y += 0.015;
+
+                
+                // Yeni pozisyonu güncelle
+                AbsoluteLayout.SetLayoutBounds(EnemyShipBorder, new Rect(AbsoluteLayout.GetLayoutBounds(EnemyShipBorder).X, y, AbsoluteLayout.GetLayoutBounds(EnemyShipBorder).Width, AbsoluteLayout.GetLayoutBounds(EnemyShipBorder).Height));
+
+                // Sınır kontrolü yap
+                var enemyBounds = AbsoluteLayout.GetLayoutBounds(EnemyShipBorder);
+                if (y >= 1 || y < 0)
+                {
+                    // Y dışına çıkma durumu
+                    Debug.WriteLine($"{y}{x}{myshipy}{myshipx}");
+                    if (absoluteLayout != null)
+                    {
+                        absoluteLayout.Children.Remove(EnemyShipBorder);  // Orijinal listeden çıkar
+                        enemyShipBorders.Remove(EnemyShipBorder);  // Orijinal listeden çıkar
+                    }
+                    break;
+                }
+            }
 
         }
         private async void MyShip(double x, double y)
