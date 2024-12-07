@@ -172,20 +172,21 @@ namespace Uygulamam
         }
         private async void  MovingEnemies(Border EnemyShipBorder)
         {
+            DateTime startTime = DateTime.Now;
             double y = AbsoluteLayout.GetLayoutBounds(EnemyShipBorder).Y;
             double x = AbsoluteLayout.GetLayoutBounds(EnemyShipBorder).X;
-            double myshipx = _currentX + 0.5;
-            double myshipy = _currentY + 0.5;
-            DateTime startTime = DateTime.Now;
-
             while (true)
             {
                 await Task.Delay(100);
-                y += 0.015;
+                double myshipx = _currentX + 0.5;
+                double myshipy = _currentY + 0.5;
+                y -= Math.Sqrt(0.0005) * (double)((y - myshipy) / Math.Sqrt((Math.Pow((y - myshipy), 2) + Math.Pow((x - myshipx), 2))));
+                x -=2* Math.Sqrt(0.0005) * (double)((x - myshipx) / Math.Sqrt((Math.Pow((y - myshipy), 2) + Math.Pow((x - myshipx), 2))));
 
-                
                 // Yeni pozisyonu güncelle
-                AbsoluteLayout.SetLayoutBounds(EnemyShipBorder, new Rect(AbsoluteLayout.GetLayoutBounds(EnemyShipBorder).X, y, AbsoluteLayout.GetLayoutBounds(EnemyShipBorder).Width, AbsoluteLayout.GetLayoutBounds(EnemyShipBorder).Height));
+                //AbsoluteLayout.SetLayoutBounds(EnemyShipBorder, new Rect(AbsoluteLayout.GetLayoutBounds(EnemyShipBorder).X, y, AbsoluteLayout.GetLayoutBounds(EnemyShipBorder).Width, AbsoluteLayout.GetLayoutBounds(EnemyShipBorder).Height));
+
+                AbsoluteLayout.SetLayoutBounds(EnemyShipBorder, new Rect(x, y, AbsoluteLayout.GetLayoutBounds(EnemyShipBorder).Width, AbsoluteLayout.GetLayoutBounds(EnemyShipBorder).Height));
 
                 // Sınır kontrolü yap
                 var enemyBounds = AbsoluteLayout.GetLayoutBounds(EnemyShipBorder);
