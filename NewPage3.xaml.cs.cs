@@ -2,6 +2,7 @@ using Microsoft.Maui.Layouts;
 using System;
 using System.Diagnostics;
 
+
 namespace Uygulamam
 {
     public partial class NewPage2 : ContentPage
@@ -21,9 +22,9 @@ namespace Uygulamam
         private double speed = Math.Sqrt(0.0001);
         private bool isrunnig = false;
         private int runcounter=0;
-        private List<Image> starList = new List<Image>
+        private List<String> starList = new List<String>
         {
-            new Image { Source = "star.png" },
+            "star.png",
         };
 
         public NewPage2()
@@ -59,13 +60,36 @@ namespace Uygulamam
                 CreateNewBullet(x +0.08, _currentY , true);
                 //Debug.WriteLine($"{_currentX},{_currentX},{x},{y}");
                 await Task.Delay(CreateInterval);
-                var randomImage = starList[random.Next(starList.Count)];
-                Callstarpng(randomImage);
             }
         }
-        private void Callstarpng(Image image)
+        private async void Callstarpng()
         {
+            var name = starList[random.Next(starList.Count)];
+            var starimage = new Image
+            {
+                Source = $"{name}",
+                Aspect = Aspect.AspectFit,
+                Rotation = -90,
+                Opacity = 1,
+            };
 
+            var x =random.NextDouble();
+
+            AbsoluteLayout.SetLayoutBounds(starimage, new Microsoft.Maui.Graphics.Rect(x, 0.5, 27, -1));
+            AbsoluteLayout.SetLayoutFlags(starimage, AbsoluteLayoutFlags.PositionProportional);
+            if (absoluteLayout == null)
+            {
+                throw new InvalidOperationException("absoluteLayout is not initialized.");
+            }
+            try
+            {
+                absoluteLayout.Children.Add(starimage);
+                MovingStarPng(starimage, true);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+            }
         }
         private async void enemyfired()
         {
@@ -80,7 +104,7 @@ namespace Uygulamam
                     double Y = AbsoluteLayout.GetLayoutBounds(enemyShipBorder).Y;
                     double X = AbsoluteLayout.GetLayoutBounds(enemyShipBorder).X;
                     CreateNewBullet(X+0.04 , Y+0.08 , false);
-                    Debug.WriteLine($"{Y}{X}oluşturuldu");
+                    //Debug.WriteLine($"{Y}{X}oluşturuldu");
                     i += 0.01;
                 }
                 await Task.Delay(CreateInterval); // Yeni Image oluşturma aralığı
@@ -95,6 +119,8 @@ namespace Uygulamam
                 GenerateAndPlaceEnemyShip();
                 GenerateAndPlaceEnemyShip();
                 GenerateAndPlaceEnemyShip();
+                Callstarpng();
+
                 await Task.Delay(callingtime); // Yeni Image oluşturma aralığı
                                                // Example of an async task (e.g., logging)
 
@@ -130,6 +156,23 @@ namespace Uygulamam
             catch (Exception ex)
             {
                 Debug.WriteLine(ex);
+            }
+        }
+        private async void MovingStarPng(Image image, bool isstar)
+        {
+            double y = AbsoluteLayout.GetLayoutBounds(image).Y;
+            while (isrunnig)
+            {
+                await Task.Delay(35);//mermi hızını etkiler ters orantılı
+                if (isstar) y += 0.001;
+                else y += 0.021;
+                // Log the current y position
+                //Console.WriteLine($"Current y position: {y}");
+
+                // Update the position
+                AbsoluteLayout.SetLayoutBounds(image, new Rect(AbsoluteLayout.GetLayoutBounds(image).X, y, AbsoluteLayout.GetLayoutBounds(image).Width, AbsoluteLayout.GetLayoutBounds(image).Height));
+                if (isstar) KonumTakipi(image, true);
+                else KonumTakipi(image, false);
             }
         }
         private async void MovingBullet(Image image,bool ismybullet)
@@ -225,9 +268,16 @@ namespace Uygulamam
             AbsoluteLayout.SetLayoutFlags(EnemyShipBorder, AbsoluteLayoutFlags.PositionProportional);
 
             // Add Border to the Layout (assuming you have an AbsoluteLayout named 'absoluteLayout')
-            absoluteLayout.Children.Add(EnemyShipBorder);
-            enemyShipBorders.Add(EnemyShipBorder);
-            MovingEnemies(EnemyShipBorder);
+            try
+            {
+                absoluteLayout.Children.Add(EnemyShipBorder);
+                enemyShipBorders.Add(EnemyShipBorder);
+                MovingEnemies(EnemyShipBorder);
+            }
+            catch(Exception ex)
+            {
+                Debug.WriteLine(ex);
+            }
 
         }
         private async void  MovingEnemies(Border EnemyShipBorder)
