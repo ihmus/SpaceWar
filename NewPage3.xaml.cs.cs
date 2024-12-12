@@ -4,8 +4,9 @@ using System.Diagnostics;
 
 namespace Uygulamam
 {
-    public partial class NewPage3 : ContentPage
+    public partial class NewPage2 : ContentPage
     {
+        private Random random = new Random();
         double _xOffset, _yOffset;
         double _startX, _startY;
         private Random _random = new Random();
@@ -18,8 +19,14 @@ namespace Uygulamam
         private List<Border> enemyShipBorders = new List<Border>();
         private int score=0;
         private double speed = Math.Sqrt(0.0001);
+        private bool isrunnig = false;
+        private int runcounter=0;
+        private List<Image> starList = new List<Image>
+        {
+            new Image { Source = "star.png" },
+        };
 
-        public NewPage3()
+        public NewPage2()
         {
             InitializeComponent();
             MyShip(MyShipX, MyShipY);
@@ -44,23 +51,28 @@ namespace Uygulamam
 
         private async void fired()
         {
-            while (true)
+            while (isrunnig)
             {
                 double x = MyShipBorder.X / absoluteLayout.Width;
                 double y = MyShipBorder.Y / absoluteLayout.Height;
                 CreateNewBullet(x +0.01, _currentY,true);
                 CreateNewBullet(x +0.08, _currentY , true);
                 //Debug.WriteLine($"{_currentX},{_currentX},{x},{y}");
-                await Task.Delay(CreateInterval); // Yeni Image oluşturma aralığı
-                                                  // Example of an async task (e.g., logging)
+                await Task.Delay(CreateInterval);
+                var randomImage = starList[random.Next(starList.Count)];
+                Callstarpng(randomImage);
             }
+        }
+        private void Callstarpng(Image image)
+        {
+
         }
         private async void enemyfired()
         {
             double layoutWidth = absoluteLayout.Width; double layoutHeight = absoluteLayout.Height;
             if (!enemyShipBorders.Any()) // Liste boşsa {
                 Console.WriteLine("Enemy ship borders list is empty.");// Döngüyü sonlandır
-            while (true)
+            while (isrunnig)
             {
                 double i= 0.7;
                 foreach (var enemyShipBorder in enemyShipBorders.ToList())  // ToList() kullanarak güvenli iterasyon sağlanır
@@ -77,7 +89,7 @@ namespace Uygulamam
         }
         private async void calltheenemies()
         {
-            while (true)
+            while (isrunnig)
             {
                 GenerateAndPlaceEnemyShip();
                 GenerateAndPlaceEnemyShip();
@@ -161,14 +173,16 @@ namespace Uygulamam
             //Debug.WriteLine($"{image.X}{image.Y}");
             if (ismybullet)
             {
-                foreach (var enemyShipBorder in enemyShipBorders.ToList())  // ToList() kullanarak güvenli iterasyon sağlanır
+                foreach (var enemyShipBorder in enemyShipBorders.ToList())
                 {
                     if (IsBulletInsideEnemyBorder(image, enemyShipBorder))
                     {
                         if (absoluteLayout != null)
                         {
-                            absoluteLayout.Children.Remove(enemyShipBorder);  // Orijinal listeden çıkar
-                            enemyShipBorders.Remove(enemyShipBorder);  // Orijinal listeden çıkar
+                            absoluteLayout.Children.Remove(enemyShipBorder); 
+                            enemyShipBorders.Remove(enemyShipBorder);
+                            score += 1;
+                            ScoreLabel.Text = $"Score: {score}";
                         }
                     }
                 }
@@ -176,7 +190,9 @@ namespace Uygulamam
             else { 
                 if(IsBulletInsideEnemyBorder(image, MyShipBorder))
                 {
-                    absoluteLayout.Children.Remove(MyShipBorder);  // Orijinal listeden çıkar
+                    absoluteLayout.Children.Remove(MyShipBorder);
+                    isrunnig = false;
+
                 }
 
             }
@@ -221,7 +237,7 @@ namespace Uygulamam
             double myshipx = _currentX ;
             double myshipy = _currentY ;
 
-            while (true)
+            while (isrunnig)
             {
                 y = AbsoluteLayout.GetLayoutBounds(EnemyShipBorder).Y;
                 x = AbsoluteLayout.GetLayoutBounds(EnemyShipBorder).X;
@@ -351,6 +367,14 @@ namespace Uygulamam
                 switch (e.StatusType)
                 {
                     case GestureStatus.Started:
+                        if (runcounter == 0)
+                        {
+                            isrunnig = true;
+                            fired();
+                            enemyfired();
+                            calltheenemies();
+                            runcounter += 1;
+                        }
                         // Kullanıcının dokunduğu noktayı hesapla
                         _xOffset = (e.TotalX - (screenWidth / 2)) / screenWidth;
                         _yOffset = (e.TotalY - (screenHeight / 2)) / screenHeight;
